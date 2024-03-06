@@ -7,6 +7,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
+import java.util.Random;
 
 import javax.swing.*;
 
@@ -18,14 +19,28 @@ public class TictactoeGraphics extends JPanel implements ActionListener {
     static final String MARK_O = "O";
 
     boolean isFirstPlayerActive;
+    boolean isBotActive;
 
     final JButton[] tiles = new JButton[9];
 
-    public TictactoeGraphics() {
-        GridLayout grid = new GridLayout(3, 3);
+    JLabel fillText1 = new JLabel("");
+    JLabel fillText2 = new JLabel("");
+    JLabel playText = new JLabel("X turn.");
+
+    public TictactoeGraphics(boolean isLocalGame) {
+        GridLayout grid = new GridLayout(4, 3);
+
+        isBotActive = !isLocalGame;
 
         this.setPreferredSize(new Dimension(WIDTH, LENGTH));
         this.setLayout(grid);
+
+        playText.setFont(new Font("Arial", Font.BOLD, 32));
+        playText.setHorizontalAlignment(JLabel.CENTER);
+
+        this.add(fillText1);
+        this.add(playText);
+        this.add(fillText2);
 
         for(int i = 0; i < 9; i++) {
             tiles[i] = new JButton();
@@ -46,31 +61,69 @@ public class TictactoeGraphics extends JPanel implements ActionListener {
                     if(isFirstPlayerActive) {
                         tiles[i].setForeground(Color.black);
                         tiles[i].setText(MARK_X);
-                        isFirstPlayerActive = false;
+                        if(!isBotActive) {
+                            playText.setText("O turn.");
+                            isFirstPlayerActive = false;
+                        }
                     } else {
                         tiles[i].setForeground(Color.blue);
                         tiles[i].setText(MARK_O);
+                        playText.setText("X turn.");
                         isFirstPlayerActive = true;
                     }
 
-                    checkState();
+                    if(checkState()) {
+                        return;
+                    }
+
+                    if(isBotActive) {
+                        botPlay();
+                        i++;
+                    }
+
+                    if(checkState()) {
+                        return;
+                    }
                 }
             }
         }
     }
 
-    protected void checkState() {
+    protected void botPlay() {
+        Random random = new Random();
+
+        while(true) {
+            int tile = random.nextInt(9);
+
+            if(tiles[tile].getText().isEmpty()) {
+                tiles[tile].setForeground(Color.blue);
+                tiles[tile].setText(MARK_O);
+                isFirstPlayerActive = true;
+                return;
+            }
+        }
+    }
+
+    protected boolean checkState() {
         if(checkMark(MARK_X)) {
-            return;
+            playText.setText("X won.");
+            playText.setForeground(Color.black);
+            return true;
         }
 
         if(checkMark(MARK_O)) {
-            return;
+            playText.setText("O won.");
+            playText.setForeground(Color.blue);
+            return true;
         }
 
         if(checkDraw()) {
-            return;
+            playText.setText("Draw.");
+            playText.setForeground(Color.darkGray);
+            return true;
         }
+
+        return false;
     }
 
     protected boolean checkDraw() {
