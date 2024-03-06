@@ -19,11 +19,15 @@ class MinigamePage extends JFrame
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
 
-        JPanel panel = new JPanel(new GridLayout(2, 1, 10, 10)); // 2 lin  1 col,  10 pixels gap
+        JPanel panel = new JPanel(new GridLayout(3, 1, 10, 10)); // 2 lin  1 col,  10 pixels gap
 
         JButton tictactoeButton = new JButton("Tic Tac Toe (vs Local Player)");
         tictactoeButton.setPreferredSize(new Dimension(200, 100));
         panel.add(tictactoeButton);
+        
+        JButton tictactoeButtonBot = new JButton("Tic Tac Toe (vs Bot)");
+        tictactoeButtonBot.setPreferredSize(new Dimension(200, 100));
+        panel.add(tictactoeButtonBot);
 
         JButton rpsButton = new JButton("Rock Paper Scissors");
         rpsButton.setPreferredSize(new Dimension(200, 100));
@@ -33,6 +37,10 @@ class MinigamePage extends JFrame
 
         tictactoeButton.addActionListener(e -> {
             TictactoeGame tictactoe = new TictactoeGame();
+        });
+
+        tictactoeButtonBot.addActionListener(e -> {
+            TictactoeGame tictactoe = new TictactoeGame(false);
         });
 
         rpsButton.addActionListener(e -> {
