@@ -36,7 +36,7 @@ class MinigamePage extends JFrame
         add(panel);
 
         tictactoeButton.addActionListener(e -> {
-            TictactoeGame tictactoe = new TictactoeGame();
+            TictactoeGame tictactoe = new TictactoeGame(true);
         });
 
         tictactoeButtonBot.addActionListener(e -> {
