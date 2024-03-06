@@ -6,28 +6,36 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
 
-public class RpsGraphics extends JPanel implements ActionListener {
+class RpsGraphics extends JPanel implements ActionListener {
 
-    static final int WIDTH = 700;
+    static final int WIDTH = 500;
     static final int LENGTH = 700;
     String[] rps = {"Rock", "Paper", "Scissors"};
     final JButton[] tiles = new JButton[3];
     JButton botPlay = new JButton();
-    JLabel text = new JLabel("The bot is thinking....");
+    JLabel botPlayText = new JLabel("");
     JLabel resultText = new JLabel("");
+    JLabel userPlayText = new JLabel("");
 
     public RpsGraphics() {
         this.setPreferredSize(new Dimension(WIDTH, LENGTH));
-        this.setLayout(new GridLayout(3, 3));
-        this.add(text);
-        this.add(resultText);
+        this.setLayout(new GridLayout(2, 3));
 
-        text.setFont(new Font("Arial", Font.ITALIC, 12));
-        resultText.setFont(new Font("Arial", Font.BOLD, 15));
+        this.add(botPlayText);
+        this.add(resultText);
+        this.add(userPlayText);
+
+        botPlayText.setHorizontalAlignment(JLabel.CENTER);
+        resultText.setHorizontalAlignment(JLabel.CENTER);
+        userPlayText.setHorizontalAlignment(JLabel.CENTER);
+
+        botPlayText.setFont(new Font("Arial", Font.ITALIC, 16));
+        resultText.setFont(new Font("Arial", Font.BOLD, 28));
+        userPlayText.setFont(new Font("Arial", Font.ITALIC, 16));
 
         for(int i = 0; i < 3; i++) {
             tiles[i] = new JButton();
-            tiles[i].setFont(new Font("Arial", Font.BOLD, 12));
+            tiles[i].setFont(new Font("Arial", Font.BOLD, 28));
             tiles[i].setFocusable(false);
             tiles[i].addActionListener(this);
             tiles[i].setText(rps[i]);
@@ -46,17 +54,43 @@ public class RpsGraphics extends JPanel implements ActionListener {
         tiles[0].setEnabled(false);
         tiles[1].setEnabled(false);
         tiles[2].setEnabled(false);
-        text.setText("Bot played " + botPlay.getText());
+
+        botPlayText.setText("Bot played " + botPlay.getText());
+        setBotTextColor();
 
         for(int i = 0; i < 3; i++) {
             if(e.getSource() == tiles[i]) {
+                userPlayText.setText("You played " + tiles[i].getText());
+
                 if(tiles[i].getText().equals(botPlay.getText())) {
-                    resultText.setText("Draw.");
-                    resultText.setForeground(Color.black);
-                    break;
-                } else
                     checkWin(tiles[i].getText());
+                }
+                setUserTextColor(tiles[i]);
             }
+        }
+    }
+
+    private void setUserTextColor(JButton playButton) {
+        if(playButton.getText().equals("Rock")) {
+            userPlayText.setForeground(Color.darkGray);
+        }
+        if(playButton.getText().equals("Paper")) {
+            userPlayText.setForeground(Color.orange);
+        }
+        if(playButton.getText().equals("Scissors")) {
+            userPlayText.setForeground(Color.blue);
+        }
+    }
+
+    private void setBotTextColor() {
+        if(botPlay.getText().equals("Rock")) {
+            botPlayText.setForeground(Color.darkGray);
+        }
+        if(botPlay.getText().equals("Paper")) {
+            botPlayText.setForeground(Color.orange);
+        }
+        if(botPlay.getText().equals("Scissors")) {
+            botPlayText.setForeground(Color.blue);
         }
     }
 
@@ -64,32 +98,46 @@ public class RpsGraphics extends JPanel implements ActionListener {
         if(userPlay.equals("Scissors")) {
             if(botPlay.getText().equals("Paper")) {
                 win();
+                return;
             }
             if(botPlay.getText().equals("Rock")) {
                 loss();
+                return;
             }
         }
         if(userPlay.equals("Paper")) {
             if(botPlay.getText().equals("Rock")) {
                 win();
+                return;
             }
             if(botPlay.getText().equals("Scissors")) {
                 loss();
+                return;
             }
         }
         if(userPlay.equals("Rock")) {
             if(botPlay.getText().equals("Scissors")) {
                 win();
+                return;
             }
             if(botPlay.getText().equals("Paper")) {
                 loss();
+                return;
             }
+        }
+        if(userPlay.equals(botPlay.getText())) {
+            draw();
         }
     }
 
     private void win() {
         resultText.setText("You win.");
         resultText.setForeground(Color.green);
+    }
+
+    private void draw() {
+        resultText.setText("Draw.");
+        resultText.setForeground(Color.orange);
     }
 
     private void loss() {
