@@ -8,8 +8,8 @@ import java.util.Random;
 
 class RpsGraphics extends JPanel implements ActionListener {
 
-    static final int WIDTH = 500;
-    static final int LENGTH = 700;
+    static final int WIDTH = 600;
+    static final int LENGTH = 400;
     String[] rps = {"Rock", "Paper", "Scissors"};
     final JButton[] tiles = new JButton[3];
     JButton botPlay = new JButton();
@@ -61,11 +61,9 @@ class RpsGraphics extends JPanel implements ActionListener {
         for(int i = 0; i < 3; i++) {
             if(e.getSource() == tiles[i]) {
                 userPlayText.setText("You played " + tiles[i].getText());
-
-                if(tiles[i].getText().equals(botPlay.getText())) {
-                    checkWin(tiles[i].getText());
-                }
                 setUserTextColor(tiles[i]);
+
+                checkWin(tiles[i].getText());
             }
         }
     }
@@ -105,6 +103,7 @@ class RpsGraphics extends JPanel implements ActionListener {
                 return;
             }
         }
+
         if(userPlay.equals("Paper")) {
             if(botPlay.getText().equals("Rock")) {
                 win();
@@ -115,6 +114,7 @@ class RpsGraphics extends JPanel implements ActionListener {
                 return;
             }
         }
+
         if(userPlay.equals("Rock")) {
             if(botPlay.getText().equals("Scissors")) {
                 win();
