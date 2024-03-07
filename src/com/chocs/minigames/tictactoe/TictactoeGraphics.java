@@ -120,6 +120,11 @@ public class TictactoeGraphics extends JPanel implements ActionListener {
         if(checkDraw()) {
             playText.setText("Draw.");
             playText.setForeground(Color.darkGray);
+
+            for(int i = 0; i < 9; i++) {
+                tiles[i].setEnabled(false);
+            }
+
             return true;
         }
 
@@ -127,15 +132,15 @@ public class TictactoeGraphics extends JPanel implements ActionListener {
     }
 
     protected boolean checkDraw() {
-        int i = 0;
-        while(!tiles[i].getText().isEmpty()) {
-            if(i == tiles.length - 1) {
-                Arrays.stream(tiles).forEach(t -> t.setEnabled(false));
+        int count = 0;
+
+        for(int i = 0; i < 9; i++) {
+            if(!tiles[i].getText().isEmpty()) {
+                count++;
             }
-            i++;
         }
 
-        return i == tiles.length -1;
+        return count == 9;
     }
     protected boolean checkMark(String mark) {
         boolean isDone;
