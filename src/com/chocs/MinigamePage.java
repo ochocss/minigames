@@ -1,6 +1,7 @@
 package com.chocs;
 
 import com.chocs.minigames.rps.RpsGame;
+import com.chocs.minigames.snake_game.SnakeGame;
 import com.chocs.minigames.tictactoe.TictactoeGame;
 
 import javax.swing.*;
@@ -14,12 +15,13 @@ class MinigamePage extends JFrame
     {
         this.pack();
         this.setTitle("Minigames");
-        this.setSize(400, 400);
+        this.setSize(400, 500);
         this.setResizable(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
+        this.setFocusable(false);
 
-        JPanel panel = new JPanel(new GridLayout(3, 1, 10, 10)); // 2 lin  1 col,  10 pixels gap
+        JPanel panel = new JPanel(new GridLayout(4, 1, 10, 10)); // 2 lin  1 col,  10 pixels gap
 
         JButton tictactoeButton = new JButton("Tic Tac Toe (vs Local Player)");
         tictactoeButton.setPreferredSize(new Dimension(200, 100));
@@ -33,6 +35,10 @@ class MinigamePage extends JFrame
         rpsButton.setPreferredSize(new Dimension(200, 100));
         panel.add(rpsButton);
 
+        JButton snakeButton = new JButton("Snake Game");
+        snakeButton.setPreferredSize(new Dimension(200, 100));
+        panel.add(snakeButton);
+
         add(panel);
 
         tictactoeButton.addActionListener(e -> {
@@ -45,6 +51,10 @@ class MinigamePage extends JFrame
 
         rpsButton.addActionListener(e -> {
             RpsGame rps = new RpsGame();
+        });
+
+        snakeButton.addActionListener(e -> {
+            SnakeGame snake = new SnakeGame();
         });
     }
 }
