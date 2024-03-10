@@ -17,6 +17,8 @@ class RpsGraphics extends JPanel implements ActionListener {
     JLabel resultText = new JLabel("");
     JLabel userPlayText = new JLabel("");
 
+    Action restartAction;
+
     public RpsGraphics() {
         this.setPreferredSize(new Dimension(WIDTH, LENGTH));
         this.setLayout(new GridLayout(2, 3));
@@ -24,6 +26,11 @@ class RpsGraphics extends JPanel implements ActionListener {
         this.add(botPlayText);
         this.add(resultText);
         this.add(userPlayText);
+
+        restartAction = new RestartAction();
+
+        this.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "restartAction");
+        this.getActionMap().put("restartAction", restartAction);
 
         botPlayText.setHorizontalAlignment(JLabel.CENTER);
         resultText.setHorizontalAlignment(JLabel.CENTER);
@@ -143,5 +150,21 @@ class RpsGraphics extends JPanel implements ActionListener {
     private void loss() {
         resultText.setText("You lose.");
         resultText.setForeground(Color.red);
+    }
+
+    public class RestartAction extends AbstractAction {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(!resultText.getText().isEmpty()) {
+                botPlayText.setText("");
+                resultText.setText("");
+                userPlayText.setText("");
+
+                tiles[0].setEnabled(true);
+                tiles[1].setEnabled(true);
+                tiles[2].setEnabled(true);
+            }
+        }
     }
 }
