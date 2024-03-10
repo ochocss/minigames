@@ -122,7 +122,7 @@ class SnakeGraphics extends JPanel implements ActionListener {
         g.setFont(new Font("Arial", Font.PLAIN, 18));
         if(gameOver) {
             g.setColor(Color.RED);
-            g.drawString("Game Over: " + snakeBody.size(), TILE_SIZE - 18, TILE_SIZE);
+            g.drawString("Game Over. Press SPACE to restart. Final score: " + snakeBody.size(), TILE_SIZE - 18, TILE_SIZE);
         } else {
             g.setColor(Color.GRAY);
             g.drawString("Score: " + snakeBody.size(), TILE_SIZE - 18, TILE_SIZE);
