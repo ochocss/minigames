@@ -21,6 +21,9 @@ public class TictactoeGraphics extends JPanel implements ActionListener {
     boolean isFirstPlayerActive;
     boolean isBotActive;
 
+    boolean isDone = false;
+    Action restartAction;
+
     final JButton[] tiles = new JButton[9];
 
     JLabel fillText1 = new JLabel("");
@@ -51,6 +54,10 @@ public class TictactoeGraphics extends JPanel implements ActionListener {
         }
 
         isFirstPlayerActive = true;
+
+        restartAction = new RestartAction();
+        this.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "restartAction");
+        this.getActionMap().put("restartAction", restartAction);
     }
 
     @Override
@@ -59,14 +66,14 @@ public class TictactoeGraphics extends JPanel implements ActionListener {
             if(e.getSource() == tiles[i]) {
                 if(tiles[i].getText().isEmpty()) {
                     if(isFirstPlayerActive) {
-                        tiles[i].setForeground(Color.black);
+                        tiles[i].setForeground(Color.RED);
                         tiles[i].setText(MARK_X);
                         if(!isBotActive) {
                             playText.setText("O turn.");
                             isFirstPlayerActive = false;
                         }
                     } else {
-                        tiles[i].setForeground(Color.blue);
+                        tiles[i].setForeground(Color.BLUE);
                         tiles[i].setText(MARK_O);
                         playText.setText("X turn.");
                         isFirstPlayerActive = true;
@@ -96,7 +103,7 @@ public class TictactoeGraphics extends JPanel implements ActionListener {
             int tile = random.nextInt(9);
 
             if(tiles[tile].getText().isEmpty()) {
-                tiles[tile].setForeground(Color.blue);
+                tiles[tile].setForeground(Color.BLUE);
                 tiles[tile].setText(MARK_O);
                 isFirstPlayerActive = true;
                 return;
@@ -107,19 +114,20 @@ public class TictactoeGraphics extends JPanel implements ActionListener {
     protected boolean checkState() {
         if(checkMark(MARK_X)) {
             playText.setText("X won.");
-            playText.setForeground(Color.black);
+            playText.setForeground(Color.RED);
             return true;
         }
 
         if(checkMark(MARK_O)) {
             playText.setText("O won.");
-            playText.setForeground(Color.blue);
+            playText.setForeground(Color.BLUE);
             return true;
         }
 
         if(checkDraw()) {
             playText.setText("Draw.");
-            playText.setForeground(Color.darkGray);
+            playText.setForeground(Color.DARK_GRAY);
+            isDone = true;
 
             for(int i = 0; i < 9; i++) {
                 tiles[i].setEnabled(false);
@@ -143,18 +151,16 @@ public class TictactoeGraphics extends JPanel implements ActionListener {
         return count == 9;
     }
     protected boolean checkMark(String mark) {
-        boolean isDone;
-
-        isDone = checkDirection(0, 1, 2, mark); // horizontal 1
+                    isDone = checkDirection(0, 1, 2, mark); // horizontal 1
         if(!isDone) isDone = checkDirection(3, 4, 5, mark); // horizontal 2
         if(!isDone) isDone = checkDirection(6, 7, 8, mark); // horizontal 3
 
-        if(!isDone) isDone = checkDirection(0, 3, 6, mark); // vertical 1
-        if(!isDone) isDone = checkDirection(1, 4, 7, mark); // vertical 2
-        if(!isDone) isDone = checkDirection(2, 5, 8, mark); // vertical 3
+        if(!isDone) isDone = checkDirection(0, 3, 6, mark); //   vertical 1
+        if(!isDone) isDone = checkDirection(1, 4, 7, mark); //   vertical 2
+        if(!isDone) isDone = checkDirection(2, 5, 8, mark); //   vertical 3
 
-        if(!isDone) isDone = checkDirection(0, 4, 8, mark); // diagonal 1
-        if(!isDone) isDone = checkDirection(2, 4, 6, mark); // diagonal 2
+        if(!isDone) isDone = checkDirection(0, 4, 8, mark); //   diagonal 1
+        if(!isDone) isDone = checkDirection(2, 4, 6, mark); //   diagonal 2
 
 
         return isDone;
@@ -175,5 +181,23 @@ public class TictactoeGraphics extends JPanel implements ActionListener {
         tiles[posC].setBackground(Color.GREEN);
 
         Arrays.stream(tiles).forEach(t -> t.setEnabled(false));
+    }
+
+    public class RestartAction extends AbstractAction {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(isDone) {
+                for(int i = 0; i < 9; i++) {
+                    tiles[i].setEnabled(true);
+                    tiles[i].setText("");
+                    tiles[i].setBackground(null);
+                }
+
+                playText.setForeground(Color.BLACK);
+                playText.setText("X turn");
+                isFirstPlayerActive = true;
+            }
+        }
     }
 }
