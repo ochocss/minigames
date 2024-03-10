@@ -31,6 +31,8 @@ class SnakeGraphics extends JPanel implements ActionListener {
     Action leftAction;
     Action rightAction;
 
+    Action restartAction;
+
     private static class Tile {
         int x;
         int y;
@@ -65,6 +67,7 @@ class SnakeGraphics extends JPanel implements ActionListener {
         downAction = new DownAction();
         leftAction = new LeftAction();
         rightAction = new RightAction();
+        restartAction = new RestartAction();
 
         //adding key binding
         this.getInputMap().put(KeyStroke.getKeyStroke('w'), "upAction");
@@ -82,6 +85,9 @@ class SnakeGraphics extends JPanel implements ActionListener {
         this.getInputMap().put(KeyStroke.getKeyStroke('d'), "rightAction");
         this.getInputMap().put(KeyStroke.getKeyStroke("RIGHT"), "rightAction");
         this.getActionMap().put("rightAction", rightAction);
+
+        this.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "restartAction");
+        this.getActionMap().put("restartAction", restartAction);
     }
 
     public void paintComponent(Graphics g) {
@@ -174,11 +180,13 @@ class SnakeGraphics extends JPanel implements ActionListener {
     //loop
     @Override
     public void actionPerformed(ActionEvent e) {
-        move();
-        repaint();
         if(gameOver) {
             loop.stop();
+            return;
         }
+
+        move();
+        repaint();
     }
 
 
@@ -223,6 +231,25 @@ class SnakeGraphics extends JPanel implements ActionListener {
             if(velocityX != -1) {
                 velocityX = 1;
                 velocityY = 0;
+            }
+        }
+    }
+
+    public class RestartAction extends AbstractAction {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(gameOver) {
+                snakeBody.clear();
+
+                snakeHead.x = 12;
+                snakeHead.y = 12;
+
+                velocityX = 0;
+                velocityY = 0;
+
+                gameOver = false;
+                loop.start();
             }
         }
     }
