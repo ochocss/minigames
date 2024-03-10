@@ -1,147 +1,256 @@
-package com.chocs.minigames.rps;
+package com.chocs.minigames.snake_game;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Random;
 
-class RpsGraphics extends JPanel implements ActionListener {
+import javax.swing.*;
 
-    static final int WIDTH = 600;
-    static final int LENGTH = 400;
-    String[] rps = {"Rock", "Paper", "Scissors"};
-    final JButton[] tiles = new JButton[3];
-    JButton botPlay = new JButton();
-    JLabel botPlayText = new JLabel("");
-    JLabel resultText = new JLabel("");
-    JLabel userPlayText = new JLabel("");
+class SnakeGraphics extends JPanel implements ActionListener {
 
-    public RpsGraphics() {
-        this.setPreferredSize(new Dimension(WIDTH, LENGTH));
-        this.setLayout(new GridLayout(2, 3));
+    static final int WIDTH = 1000;
+    static final int LENGTH = 1000;
+    static final int TILE_SIZE = 40;
 
-        this.add(botPlayText);
-        this.add(resultText);
-        this.add(userPlayText);
+    Random random;
 
-        botPlayText.setHorizontalAlignment(JLabel.CENTER);
-        resultText.setHorizontalAlignment(JLabel.CENTER);
-        userPlayText.setHorizontalAlignment(JLabel.CENTER);
+    Tile snakeHead;
+    ArrayList<Tile> snakeBody;
 
-        botPlayText.setFont(new Font("Arial", Font.ITALIC, 16));
-        resultText.setFont(new Font("Arial", Font.BOLD, 28));
-        userPlayText.setFont(new Font("Arial", Font.ITALIC, 16));
+    Tile apple;
 
-        for(int i = 0; i < 3; i++) {
-            tiles[i] = new JButton();
-            tiles[i].setFont(new Font("Arial", Font.BOLD, 28));
-            tiles[i].setFocusable(false);
-            tiles[i].addActionListener(this);
-            tiles[i].setText(rps[i]);
+    Timer loop;
+    int velocityX;
+    int velocityY;
+    boolean gameOver = false;
 
-            this.add(tiles[i]);
+    Action upAction;
+    Action downAction;
+    Action leftAction;
+    Action rightAction;
+
+    Action restartAction;
+
+    private static class Tile {
+        int x;
+        int y;
+
+        public Tile(int x, int y) {
+            this.x = x;
+            this.y = y;
         }
-        botPlay = tiles[new Random().nextInt(3)];
-
-        tiles[0].setForeground(Color.darkGray);
-        tiles[1].setForeground(Color.orange);
-        tiles[2].setForeground(Color.blue);
     }
 
+    SnakeGraphics() {
+        this.setPreferredSize(new Dimension(WIDTH, LENGTH));
+        this.setBackground(Color.black);
+        this.setFocusable(true);
+        this.requestFocusInWindow();
+
+        random = new Random();
+
+        snakeHead = new Tile(12, 12);
+        snakeBody = new ArrayList<>();
+
+        apple = new Tile(0, 0);
+        placeApple();
+
+        velocityX = 0;
+        velocityY = 0;
+
+        loop = new Timer(100, this);
+        loop.start();
+
+        upAction = new UpAction();
+        downAction = new DownAction();
+        leftAction = new LeftAction();
+        rightAction = new RightAction();
+        restartAction = new RestartAction();
+
+        //adding key binding
+        this.getInputMap().put(KeyStroke.getKeyStroke('w'), "upAction");
+        this.getInputMap().put(KeyStroke.getKeyStroke("UP"), "upAction");
+        this.getActionMap().put("upAction", upAction);
+
+        this.getInputMap().put(KeyStroke.getKeyStroke('s'), "downAction");
+        this.getInputMap().put(KeyStroke.getKeyStroke("DOWN"), "downAction");
+        this.getActionMap().put("downAction", downAction);
+
+        this.getInputMap().put(KeyStroke.getKeyStroke('a'), "leftAction");
+        this.getInputMap().put(KeyStroke.getKeyStroke("LEFT"), "leftAction");
+        this.getActionMap().put("leftAction", leftAction);
+
+        this.getInputMap().put(KeyStroke.getKeyStroke('d'), "rightAction");
+        this.getInputMap().put(KeyStroke.getKeyStroke("RIGHT"), "rightAction");
+        this.getActionMap().put("rightAction", rightAction);
+
+        this.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "restartAction");
+        this.getActionMap().put("restartAction", restartAction);
+    }
+
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        draw(g);
+    }
+
+    public void draw(Graphics g) {
+        //grid
+        for(int i = 0; i < WIDTH/TILE_SIZE; i++) {
+            //        (x1, y1, x2, y2)
+            g.drawLine(i*TILE_SIZE, 0,i*TILE_SIZE, LENGTH);
+            g.drawLine(0, i*TILE_SIZE, WIDTH, i*TILE_SIZE);
+        }
+
+        //apple
+        g.setColor(Color.RED);
+        g.fillRect(apple.x * TILE_SIZE, apple.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+        //snake head
+        g.setColor(new Color(4, 60, 42));
+        g.fillRect(snakeHead.x * TILE_SIZE, snakeHead.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+        //snake body
+        for(int i = 0; i < snakeBody.size(); i++) {
+            Tile snakePart = snakeBody.get(i);
+            g.setColor(Color.GREEN);
+            g.fillRect(snakePart.x * TILE_SIZE, snakePart.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        }
+
+        //score
+        g.setFont(new Font("Arial", Font.PLAIN, 18));
+        if(gameOver) {
+            g.setColor(Color.RED);
+            g.drawString("Game Over. Press SPACE to restart. Final score: " + snakeBody.size(), TILE_SIZE - 18, TILE_SIZE);
+        } else {
+            g.setColor(Color.GRAY);
+            g.drawString("Score: " + snakeBody.size(), TILE_SIZE - 18, TILE_SIZE);
+        }
+    }
+
+    public void placeApple() {
+        apple.x = random.nextInt(WIDTH/TILE_SIZE); // 0-24
+        apple.y = random.nextInt(LENGTH/TILE_SIZE);
+    }
+
+    public boolean collision(Tile tile1, Tile tile2) {
+        return tile1.x == tile2.x && tile1.y == tile2.y;
+    }
+
+    public void move() {
+        //eat
+        if(collision(snakeHead, apple)) {
+            snakeBody.add(new Tile(apple.x, apple.y));
+            placeApple();
+        }
+
+        //snake body
+        for(int i = snakeBody.size() - 1; i >= 0; i--) {
+            Tile snakePart = snakeBody.get(i);
+            if(i == 0) {
+                snakePart.x = snakeHead.x;
+                snakePart.y = snakeHead.y;
+            } else {
+                Tile prevSnakePart = snakeBody.get(i - 1);
+                snakePart.x = prevSnakePart.x;
+                snakePart.y = prevSnakePart.y;
+            }
+        }
+
+        //snake head
+        snakeHead.x += velocityX;
+        snakeHead.y += velocityY;
+
+        //game over conditions
+        for(int i = 0; i < snakeBody.size(); i++) {
+            Tile snakePart = snakeBody.get(i);
+
+            if(collision(snakeHead, snakePart)) {
+                gameOver = true;
+            }
+
+            if(snakeHead.x*TILE_SIZE < 0 || snakeHead.x*TILE_SIZE > LENGTH ||
+               snakeHead.y*TILE_SIZE < 0 || snakeHead.y*TILE_SIZE > WIDTH) {
+                gameOver = true;
+            }
+        }
+    }
+
+    //loop
     @Override
     public void actionPerformed(ActionEvent e) {
-        tiles[0].setEnabled(false);
-        tiles[1].setEnabled(false);
-        tiles[2].setEnabled(false);
+        if(gameOver) {
+            loop.stop();
+            return;
+        }
 
-        botPlayText.setText("Bot played " + botPlay.getText());
-        setBotTextColor();
+        move();
+        repaint();
+    }
 
-        for(int i = 0; i < 3; i++) {
-            if(e.getSource() == tiles[i]) {
-                userPlayText.setText("You played " + tiles[i].getText());
-                setUserTextColor(tiles[i]);
 
-                checkWin(tiles[i].getText());
+    //key binds classes
+    public class UpAction extends AbstractAction {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(velocityY != 1) {
+                velocityX = 0;
+                velocityY = -1;
             }
         }
     }
 
-    private void setUserTextColor(JButton playButton) {
-        if(playButton.getText().equals("Rock")) {
-            userPlayText.setForeground(Color.darkGray);
-        }
-        if(playButton.getText().equals("Paper")) {
-            userPlayText.setForeground(Color.orange);
-        }
-        if(playButton.getText().equals("Scissors")) {
-            userPlayText.setForeground(Color.blue);
+    public class DownAction extends AbstractAction {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(velocityY != -1) {
+                velocityX = 0;
+                velocityY = 1;
+            }
         }
     }
 
-    private void setBotTextColor() {
-        if(botPlay.getText().equals("Rock")) {
-            botPlayText.setForeground(Color.darkGray);
-        }
-        if(botPlay.getText().equals("Paper")) {
-            botPlayText.setForeground(Color.orange);
-        }
-        if(botPlay.getText().equals("Scissors")) {
-            botPlayText.setForeground(Color.blue);
+    private class LeftAction extends AbstractAction {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(velocityX != 1) {
+                velocityX = -1;
+                velocityY = 0;
+            }
         }
     }
 
-    private void checkWin(String userPlay) {
-        if(userPlay.equals("Scissors")) {
-            if(botPlay.getText().equals("Paper")) {
-                win();
-                return;
-            }
-            if(botPlay.getText().equals("Rock")) {
-                loss();
-                return;
-            }
-        }
+    public class RightAction extends AbstractAction {
 
-        if(userPlay.equals("Paper")) {
-            if(botPlay.getText().equals("Rock")) {
-                win();
-                return;
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(velocityX != -1) {
+                velocityX = 1;
+                velocityY = 0;
             }
-            if(botPlay.getText().equals("Scissors")) {
-                loss();
-                return;
-            }
-        }
-
-        if(userPlay.equals("Rock")) {
-            if(botPlay.getText().equals("Scissors")) {
-                win();
-                return;
-            }
-            if(botPlay.getText().equals("Paper")) {
-                loss();
-                return;
-            }
-        }
-        if(userPlay.equals(botPlay.getText())) {
-            draw();
         }
     }
 
-    private void win() {
-        resultText.setText("You win.");
-        resultText.setForeground(Color.green);
-    }
+    public class RestartAction extends AbstractAction {
 
-    private void draw() {
-        resultText.setText("Draw.");
-        resultText.setForeground(Color.orange);
-    }
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(gameOver) {
+                snakeBody.clear();
 
-    private void loss() {
-        resultText.setText("You lose.");
-        resultText.setForeground(Color.red);
+                snakeHead.x = 12;
+                snakeHead.y = 12;
+
+                velocityX = 0;
+                velocityY = 0;
+
+                gameOver = false;
+                loop.start();
+            }
+        }
     }
 }
