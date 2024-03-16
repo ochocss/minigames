@@ -49,7 +49,6 @@ class RpsGraphics extends JPanel implements ActionListener {
 
             this.add(tiles[i]);
         }
-        botPlay = tiles[new Random().nextInt(3)];
 
         tiles[0].setForeground(Color.darkGray);
         tiles[1].setForeground(Color.orange);
@@ -61,6 +60,8 @@ class RpsGraphics extends JPanel implements ActionListener {
         tiles[0].setEnabled(false);
         tiles[1].setEnabled(false);
         tiles[2].setEnabled(false);
+
+        botPlay = tiles[new Random().nextInt(3)];
 
         botPlayText.setText("Bot played " + botPlay.getText());
         setBotTextColor();
