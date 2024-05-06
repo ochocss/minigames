@@ -112,8 +112,7 @@ class SnakeGraphics extends JPanel implements ActionListener {
         g.fillRect(snakeHead.x * TILE_SIZE, snakeHead.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 
         //snake body
-        for(int i = 0; i < snakeBody.size(); i++) {
-            Tile snakePart = snakeBody.get(i);
+        for (Tile snakePart : snakeBody) {
             g.setColor(Color.GREEN);
             g.fillRect(snakePart.x * TILE_SIZE, snakePart.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
@@ -139,6 +138,12 @@ class SnakeGraphics extends JPanel implements ActionListener {
     }
 
     public void move() {
+        if (snakeHead.x < 0 || snakeHead.x >= WIDTH / TILE_SIZE ||
+            snakeHead.y < 0 || snakeHead.y >= LENGTH / TILE_SIZE) {
+            gameOver = true;
+            return;
+        }
+
         //eat
         if(collision(snakeHead, apple)) {
             snakeBody.add(new Tile(apple.x, apple.y));
@@ -163,15 +168,8 @@ class SnakeGraphics extends JPanel implements ActionListener {
         snakeHead.y += velocityY;
 
         //game over conditions
-        for(int i = 0; i < snakeBody.size(); i++) {
-            Tile snakePart = snakeBody.get(i);
-
-            if(collision(snakeHead, snakePart)) {
-                gameOver = true;
-            }
-
-            if(snakeHead.x*TILE_SIZE < 0 || snakeHead.x*TILE_SIZE > LENGTH ||
-               snakeHead.y*TILE_SIZE < 0 || snakeHead.y*TILE_SIZE > WIDTH) {
+        for (Tile snakePart : snakeBody) {
+            if (collision(snakeHead, snakePart)) {
                 gameOver = true;
             }
         }
